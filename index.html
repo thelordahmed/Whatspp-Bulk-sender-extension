@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs nav-fill " id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button"
+                        role="tab" aria-controls="home" aria-selected="true">Main</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button"
+                        role="tab" aria-controls="profile" aria-selected="false">Report</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button"
+                        role="tab" aria-controls="contact" aria-selected="false">About</button>
+                </li>
+            </ul>
+            <!-- Tabs content -->
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <!-- Home Tab -->
+                    <div class="container">
+                        <!-- Excel sheet input -->
+                        <div class="row shadow-sm p-3 mb-3 bg-body rounded">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="green" class="bi bi-file-earmark-excel-fill" viewBox="0 0 16 16">
+                                        <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM5.884 6.68 8 9.219l2.116-2.54a.5.5 0 1 1 .768.641L8.651 10l2.233 2.68a.5.5 0 0 1-.768.64L8 10.781l-2.116 2.54a.5.5 0 0 1-.768-.641L7.349 10 5.116 7.32a.5.5 0 1 1 .768-.64z" />
+                                    </svg>
+                                    <label for="formFile" class="form-label">Contacts Excel sheet</label>
+
+                                    <input class="form-control form-control d-none" accept=".xlsx" type="file" id="excel-sheet" required>
+                                    <button id="excelBtn" class="form-control">Choose Numbers Sheet (.xlsx)</button>
+                                    <p id="sheetFileName" style="margin-bottom: 0;"></p>
+                                    <!-- numbers column choose -->
+                                    <div id="numbersColumns" class="text-center d-none">
+                                        <p style="margin-bottom:2px">Numbers Column:</p>
+                                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                                            <label class="btn btn-outline-primary" for="btnradio1">Column A</label>
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="btnradio2">Column B</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row shadow-sm p-3 mb-3 bg-body rounded">
+                            <div class="col">
+                                <!-- attachments input -->
+                                <div class="mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-images"
+                                        viewBox="0 0 16 16">
+                                        <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                                        <path
+                                            d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z" />
+                                    </svg>
+                                    <label for="formFileMultiple" class="form-label">Attachments</label>
+                                    <!-- <input class="form-control" type="file" id="attachments" multiple> -->
+                                    <button id="mediaBtn" class="form-control">Choose Attachment Files</button>
+                                    <p id="mediaView"></p>
+                                </div>
+                                <!-- Message Box -->
+                                <div class="mb-3 input-group">
+                                    <button class="btn btn-secondary input-group-addon" id="emoji">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-emoji-heart-eyes"
+                                            viewBox="0 0 16 16">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                            <path
+                                                d="M11.315 10.014a.5.5 0 0 1 .548.736A4.498 4.498 0 0 1 7.965 13a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .548-.736h.005l.017.005.067.015.252.055c.215.046.515.108.857.169.693.124 1.522.242 2.152.242.63 0 1.46-.118 2.152-.242a26.58 26.58 0 0 0 1.109-.224l.067-.015.017-.004.005-.002zM4.756 4.566c.763-1.424 4.02-.12.952 3.434-4.496-1.596-2.35-4.298-.952-3.434zm6.488 0c1.398-.864 3.544 1.838-.952 3.434-3.067-3.554.19-4.858.952-3.434z" />
+                                        </svg>
+                                    </button>
+                                    <textarea class="form-control" id="messagebox" rows="4" placeholder="Type you message here..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sending button -->
+                        <div class="row">
+                        <button class="btn btn-success mb-3 w-25 m-auto" id="sendBtn">Start sending</button>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="progress mb-4 d-none">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75"
+                                aria-valuemin="0" aria-valuemax="100" style="width: 75%" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+            </div>
+    </div>
+    
+    
+    
+    <script src="JS/popper.min.js"></script>
+    <script src="JS/bootstrap.min.js"></script>
+    <script src="JS/jquery.min.js"></script>
+    <script src="JS/vanillaEmojiPicker.js"></script>
+    <script src="JS/read-excel-file.min.js"></script>
+    <script src="JS/sweetalert2.all.min.js"></script>
+    <script src="JS/popup.js"></script>
+</body>
+</html>

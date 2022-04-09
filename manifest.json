@@ -1,0 +1,18 @@
+{
+    "name": "Whatsapp Bulk Sender",
+    "description": "send dynamic messages to your customers automatically on Whatsaap",
+    "version": "1.0.0",
+    "manifest_version":3,
+    "action": {
+        "default_title": "Click Me"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [{
+        "matches" : ["https://web.whatsapp.com/"],
+        "js": ["whatsapp.js","main.js"]
+    }],
+    "permissions": ["tabs", "storage"]
+
+}

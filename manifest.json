@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "manifest_version":3,
     "action": {
-        "default_title": "Click Me"
+        "default_title": "Whatsapp Bulk Sender"
     },
     "background": {
         "service_worker": "background.js"
@@ -13,6 +13,19 @@
         "matches" : ["https://web.whatsapp.com/"],
         "js": ["whatsapp.js","main.js"]
     }],
-    "permissions": ["tabs", "storage"]
+    "permissions": ["tabs", "storage"],
+    "host_permissions" : [
+        "https://softwarekeys.herokuapp.com/*"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "popup.js"
+            ],
+            "matches": [
+                "https://softwarekeys.herokuapp.com/*"
+            ]
+        }
+    ]
 
 }

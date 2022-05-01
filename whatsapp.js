@@ -6,9 +6,16 @@ function randint(min=Number, max=Number) {
 function delay(t=Number){
     return new Promise(resolve => setTimeout(resolve, t));
 }
+
+function formatPhone(phone) {
+    phone = phone.toString();
+    let symbols = [/\-/g, /\(/g, /\)/g, / /g, /\+/g]
+    symbols.forEach((sym) => {
+        phone = phone.replace(sym, "")
+    })
+    return phone
+}
 // util functions END
-
-
 
 // check for element appearance every {delay} millieseconds
 class Whatsapp {
@@ -16,8 +23,9 @@ class Whatsapp {
         this.clipButton = '[data-icon="clip"]'
         this.sendButton = '[data-icon="send"]'
         this.imageInput = 'input[type="file"][accept*="image/*,video"]'
+        this.textInput = '[contenteditable="true"]'
     }
-    isElementVisible(selector, delay=Number) {
+    isElementVisible(selector, every) {
         return new Promise((resolve) => {
             let interval = setInterval(() => {
                 let element = document.querySelector(selector);
@@ -28,7 +36,7 @@ class Whatsapp {
                 } else {
                     console.log("searching....");
                 }
-            }, delay)
+            }, every)
         })
     }
 
@@ -42,7 +50,7 @@ class Whatsapp {
         return new Promise(resolve => resolve());
     }
 
-    openChat(phone=String, minDelay=Number, maxDelay=Number) {
+    openChat(phone=String) {
         // for later to click on OK button if chat was not opened
         // document.querySelector('[data-animate-modal-popup="true"] div[role="button"]').click()
         return new Promise((resolve) => {
@@ -52,7 +60,8 @@ class Whatsapp {
                 webApiEelem.setAttribute("id", "chatOpener");
                 document.body.appendChild(webApiEelem);
             }
-
+            
+            phone = formatPhone(phone);
             webApiEelem.setAttribute(
                 "href", 
                 `https://api.whatsapp.com/send?phone=${phone}`
@@ -61,7 +70,7 @@ class Whatsapp {
             setTimeout(() => {
                 webApiEelem.click();
                 resolve();
-            }, randint(minDelay, maxDelay))
+            }, randint(1000, 2500))
             
         }) 
     }
@@ -69,41 +78,50 @@ class Whatsapp {
    // returns false if number is invalid
     isChatOpened() {
         return new Promise((resolve) => {
-            let interval = setInterval(() => {
-                if (document.querySelector('[data-animate-modal-body="true"] svg')) {
-                    console.log("waiting for chat...")
-                } else {
-                    clearInterval(interval)
-                    let btn = document.querySelector('[data-animate-modal-popup="true"] div[role="button"]');
-                    if (btn) {
-                        console.log("found button!")
-                        setTimeout(() => {
-                            btn.click();
-                            resolve(false);
-                        }, 1000);
+        // RANDOM DELAY 
+        delay(randint(1000, 2000)).then(() => {
+                let interval = setInterval(() => {
+                    if (document.querySelector('[data-animate-modal-body="true"] svg')) {
+                        console.log("waiting for chat...")
+                    } else {
+                        clearInterval(interval)
+                        let btn = document.querySelector('[data-animate-modal-popup="true"] div[role="button"]');
+                        if (btn) {
+                            delay(1000).then(() => {
+                                btn.click();
+                                resolve(false);
+                                console.log("Resolved False!")
+                            })
+                        } else {
+                            resolve(true)
+                            console.log("Resolved!")
+                        }
                     }
-                    resolve(true)
-                }
-            }, 500)
+                }, 500)
+            })
         })
-        
     }
 
     // returns false if number is blocking the sender
-    sendText(message = String) {
+    sendText(message, asCaption = false) {
         return new Promise((resolve) => {
-            let messageBox = document.querySelectorAll('[contenteditable="true"]')[1];
+            let messageBox;
+            if (asCaption) {
+                messageBox = document.querySelectorAll('[contenteditable="true"]')[0];
+            } else {
+                messageBox = document.querySelectorAll('[contenteditable="true"]')[1]
+            }
             if (messageBox) {
                 messageBox.focus();
                 messageBox.innerHTML = message;
                 messageBox.dispatchEvent(new UIEvent("input", {
-                    bubbles: true, 
+                    bubbles: true,
                     cancelable: true,
                     view: window,
                     detail: 1
                 }));
-                delay(1000).then(() => {
-                    document.querySelector(this.clipButton).click();
+                delay(randint(1000, 2000)).then(() => {
+                    document.querySelector(this.sendButton).click();
                     resolve(true);
                 })
             } else {
@@ -112,7 +130,7 @@ class Whatsapp {
         })
     }
 
-    sendImage(extensionInput) {
+    sendImage(extensionInput, withCaption=false, message=null) {
         return new Promise((resolve) => {
             let clipBtn = document.querySelector(this.clipButton);
             let whatsappInput = document.querySelector(this.imageInput);
@@ -121,11 +139,17 @@ class Whatsapp {
             }
             // wait for input to appear
             setTimeout(() => {
+                whatsappInput = document.querySelector(this.imageInput);
                 whatsappInput.files = extensionInput.files;
                 whatsappInput.dispatchEvent(new Event("change", { bubbles: true }));
                 setTimeout(() => {
-                    document.querySelector("[data-icon='send']").click();
-                    resolve();
+                    if (withCaption) {
+                        this.sendText(message, true).then(() => resolve())
+                    } else {
+                        document.querySelector("[data-icon='send']").click();
+                        resolve();
+                    }
+
                 }, randint(1500, 3000));
             }, randint(1000, 1500));
         })

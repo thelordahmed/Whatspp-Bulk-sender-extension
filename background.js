@@ -1,8 +1,62 @@
-let popupID = 0;
+////////////////////////////////////////////////////////////////
+/////// Util
+function randint(min = Number, max = Number) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+function delay(t = Number) {
+    return new Promise(resolve => setTimeout(resolve, t));
+}
+// Check If Data Exists in Storage and Returns it
+async function fetchStorage(key = String) {
+    let data = await chrome.storage.local.get(key)
+    if (data[key]) {
+        return data[key]
+    }
+}
+
+function generateId() {
+    return Math.random().toString(36).substring(2) +
+        (new Date()).getTime().toString(36);
+}
+////////////////////////////////////////////////////////////////
+
+
+// GENERATE USER ID IF NOT FOUND
+chrome.runtime.onInstalled.addListener(() => {
+    fetchStorage("userid")
+        .then((userid) => {
+            if (!userid) {
+                let id = generateId()
+                chrome.storage.local.set({ "userid": id })
+            }
+        })
+})
+
+// INITIALIZE "isKeyActivated" VALUE TO FALSE ; TO KEEP CHECKING THE API ON EVERY APP START
+chrome.storage.local.set({"isKeyActivated": {status: false, expire: null}})
+
 
 // opens pop up interface window or set focus on it if it's already opened
-chrome.action.onClicked.addListener(() => {
-    chrome.windows.update(popupID, {focused:true}, () => {
+chrome.action.onClicked.addListener(async () => {
+    // CHECK IF WHATSAPP WEB IS OPENED
+    let webTab = await chrome.tabs.query({ url: 'https://web.whatsapp.com/*' })
+    if (webTab[0]) {
+        chrome.tabs.update(webTab[0].id, { active: true })
+    } else {
+        // OPEN WHATSAPP
+        await chrome.tabs.create({ url:"https://web.whatsapp.com/"})
+        // WAIT FOR WHATSAPP TO OPENS AND LOADS CONTENT SCRIPTS
+        await delay(3000)
+        webTab = await chrome.tabs.query({ url: 'https://web.whatsapp.com/*' })
+    }
+    // GETTING CURRENT UI WINDOW
+    let response = await chrome.storage.local.get("windowID")
+    if (!response.windowID) {
+        // AVOIDING THROWING ERROR WHEN UI NOT FOUND
+        response.windowID = 0
+    }
+    // OPENS UI
+    chrome.windows.update(response.windowID, {focused:true}, () => {
         if (chrome.runtime.lastError) {
             chrome.windows.create({
                 url: chrome.runtime.getURL("index.html"),
@@ -11,12 +65,13 @@ chrome.action.onClicked.addListener(() => {
                 height: 670,
                 width: 550,
             }, (createdwindow) => {
-                popupID = createdwindow.id;
                 // saving window ID
-                chrome.storage.local.set({ "windowID": popupID });
+                chrome.storage.local.set({ "windowID": createdwindow.id });
             })
         }
-    })
-
-
+    })    
 })
+
+
+
+

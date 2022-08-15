@@ -112,11 +112,24 @@ class Whatsapp {
                 messageBox = document.querySelectorAll('[contenteditable="true"]')[1]
             }
             if (messageBox) {
-                messageBox.focus();
-                messageBox.innerHTML = message;
-                messageBox.dispatchEvent(new UIEvent("input", {
+                messageBox.dispatchEvent(new InputEvent("input", {
+                    data: message,
                     bubbles: true,
-                    cancelable: true,
+                    cancelable: false,
+                    cancelBubble: false,
+                    currentTarget: null,
+                    inputType: "insertText",
+                    dataTransfer: null,
+                    defaultPrevented: false,
+                    detail: 0,
+                    eventPhase: 0,
+                    isComposing: false,
+                    returnValue: true,
+                    sourceCapabilities: null,
+                    type: "input",
+                    view: null,
+                    which: 0,
+                    composed: true,
                     view: window,
                     detail: 1
                 }));

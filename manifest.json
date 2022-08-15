@@ -1,7 +1,7 @@
 {
     "name": "Whatsapp Bulk Sender",
     "description": "send dynamic messages to your customers automatically through WhatsApp web",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "manifest_version":3,
     "action": {
         "default_title": "Whatsapp Bulk Sender",

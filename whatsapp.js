@@ -7,12 +7,16 @@ function delay(t=Number){
     return new Promise(resolve => setTimeout(resolve, t));
 }
 
+// Returns false if number doens't have country code
 function formatPhone(phone) {
     phone = phone.toString();
-    let symbols = [/\-/g, /\(/g, /\)/g, / /g, /\+/g]
+    let symbols = [/\-/g, /\(/g, /\)/g, / /g, /\+/g, /\:/g]
     symbols.forEach((sym) => {
         phone = phone.replace(sym, "")
     })
+    while (phone[0] === "0") {
+        phone = phone.replace("0", "")
+    }
     return phone
 }
 // util functions END
@@ -69,7 +73,8 @@ class Whatsapp {
 
             setTimeout(() => {
                 webApiEelem.click();
-                resolve();
+                console.log("clicked api link!")
+                resolve(true);
             }, randint(1000, 2500))
             
         }) 
@@ -79,7 +84,8 @@ class Whatsapp {
     isChatOpened() {
         return new Promise((resolve) => {
         // RANDOM DELAY 
-        delay(randint(1000, 2000)).then(() => {
+        delay(randint(1000, 2000))
+            .then(() => {
                 let interval = setInterval(() => {
                     if (document.querySelector('[data-animate-modal-body="true"] svg')) {
                         console.log("waiting for chat...")

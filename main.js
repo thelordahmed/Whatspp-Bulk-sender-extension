@@ -1,8 +1,10 @@
 // STATES & EVENTS
 const SENT_STATE = "Message Sent!"
 const NOTFOUND_STATE = "No WhatsApp"
+const NOCODE_STATE = "No Country Code"
 const IDLE_STATE = "---"
 const MSG_SENT_EVENT = "messageSent"
+let debug_mode = false
 
 const wa = new Whatsapp()
 // INJECTING ATTACHMENT INPUT
@@ -11,7 +13,6 @@ mediaInput.id = "mediaInput"
 mediaInput.multiple = true
 mediaInput.type = "file"
 document.body.appendChild(mediaInput)
-
 
 // STATE INITIALIZATION
 window.addEventListener("load", async () => {
@@ -25,6 +26,7 @@ window.addEventListener("load", async () => {
 })
 
 // Error Handler
+// TODO //
 
 
 
@@ -54,6 +56,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 })
 
+// // Injection Check
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//     sendResponse()
+//     if (request.message.toLowerCase() === "is content script injected?") {
+//         console.log("All good!")
+//     }
+// })
+
 
 //////////////////////////////////////////////////////////////////////
 // Elements Listeners
@@ -66,14 +76,6 @@ mediaInput.addEventListener("input", () => {
     })
     chrome.runtime.sendMessage({ message: "choosed media", data: files.slice(0, -2) })
 })
-
-//////////////////////////////////////////////////////////////////////
-// Custom Events Listeners
-
-document.addEventListener(MSG_SENT_EVENT, (data) => {
-    alert(data.detail.message)
-})
-
 
 //////////////////////////////////////////////////////////////////////
 // Functions  ////////////////
@@ -120,23 +122,34 @@ async function startSending() {
             })
             await delay(delayMillieseconds)
         }
-        // SKIP "not found" NUMBERS AND "sent" NUMBERS
-        let rowObj = sheetData[i]
-        if (rowObj.state === NOTFOUND_STATE || rowObj.state === SENT_STATE) {
-            continue
-        }
         // CHOOSING NUMBERS COLUMN
+        let rowObj = sheetData[i]
         let columnA_checked = await fetchStorage("column")
         let name = columnA_checked === "a" ? rowObj.row[1] : rowObj.row[0]
         let phone = columnA_checked === "a" ? rowObj.row[0] : rowObj.row[1]
-        // ADDING CONTANT NAME TO MESSAGE CONTENT
+        // SKIP "not found" NUMBERS AND "sent" NUMBERS AND CURRENT CONTACT
+        if (rowObj.state === NOTFOUND_STATE || rowObj.state === SENT_STATE || rowObj.state === NOCODE_STATE) {
+            continue
+        }
+        // SAVING CURRENT CONTACT TO STORAGE
+        await chrome.storage.local.set({
+            "currentContact": {
+                "name": name,
+                "phone": phone
+            }
+        })
+        // ADDING CONTACT NAME TO MESSAGE CONTENT
         if (name) {
             message = messageContent.replace(/{name}/g, name)
         } else {
             message = messageContent.replace(/{name}/g, "")
         }
+        // OPEN CHAT
         await wa.openChat(phone)
-        if (await wa.isChatOpened()) {
+        await delay(2000)
+        // CHECK IF CHAT OPENED
+        let isOpened = await wa.isChatOpened() 
+        if (isOpened === true) {
             // STOP BTN CLICK CHECK
             if (await fetchStorage("pendingStop")) {
                 chrome.runtime.sendMessage({ message: "stopped sending" })
@@ -145,25 +158,31 @@ async function startSending() {
             // CHECK SENDING ORDER
             if (sendingOrder === "textFirst") {
                 // SEND TEXT
-                await wa.sendText(message)
-                // SEND MEDIA
-                if (mediaInput.files.length > 0) {
-                    await wa.sendImage(mediaInput)
+                if (!debug_mode) {
+                    await wa.sendText(message)
+                    // SEND MEDIA
+                    if (mediaInput.files.length > 0) {
+                        await wa.sendImage(mediaInput)
+                    }
                 }
             } else if (sendingOrder === "attachmentFirst") {
-                // SEND MEDIA
-                if (mediaInput.files.length > 0) {
-                    await wa.sendImage(mediaInput)
+                if (!debug_mode) {
+                    // SEND MEDIA
+                    if (mediaInput.files.length > 0) {
+                        await wa.sendImage(mediaInput)
+                    }
+                    // SEND TEXT
+                    await delay(randint(1500, 3000)) // wait for image view to disappear
+                    await wa.sendText(message)
                 }
-                // SEND TEXT
-                await delay(randint(1500, 3000)) // wait for image view to disappear
-                await wa.sendText(message)
             } else {
-                // SEND MEDIA WITH CAPTION
-                if (mediaInput.files.length > 0) {
-                    await wa.sendImage(mediaInput, true, message)
-                } else {
-                    wa.sendText(message)
+                if (!debug_mode) {
+                    // SEND MEDIA WITH CAPTION
+                    if (mediaInput.files.length > 0) {
+                        await wa.sendImage(mediaInput, true, message)
+                    } else {
+                        wa.sendText(message)
+                    }
                 }
             }
             // UPDATE STATE

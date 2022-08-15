@@ -32,9 +32,6 @@ chrome.runtime.onInstalled.addListener(() => {
         })
 })
 
-// INITIALIZE "isKeyActivated" VALUE TO FALSE ; TO KEEP CHECKING THE API ON EVERY APP START
-chrome.storage.local.set({"isKeyActivated": {status: false, expire: null}})
-
 
 // opens pop up interface window or set focus on it if it's already opened
 chrome.action.onClicked.addListener(async () => {
@@ -42,6 +39,11 @@ chrome.action.onClicked.addListener(async () => {
     let webTab = await chrome.tabs.query({ url: 'https://web.whatsapp.com/*' })
     if (webTab[0]) {
         chrome.tabs.update(webTab[0].id, { active: true })
+        // // CHECK IF CONTENT SCRIPT IS INJECTED
+        // chrome.tabs.sendMessage(webTab[0].id, { message: "is content script injected?" }).catch((error) => {
+        //     console.log("content script is not injected!.. Reloading...")
+        //     chrome.tabs.reload(webTab[0].id)
+        // })
     } else {
         // OPEN WHATSAPP
         await chrome.tabs.create({ url:"https://web.whatsapp.com/"})

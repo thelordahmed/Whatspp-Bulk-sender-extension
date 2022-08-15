@@ -33,6 +33,7 @@ fetchStorage("freeMessages").then((dataObj) => {
             Swal.fire({
                 title: 'Enter your License Key',
                 input: 'text',
+                footer: "<a href='https://autotaskbots.com/downloads/whatsapp-bulk-sender' target='_blank'>Buy a license key</a>",
                 showCancelButton: showCancel,
                 inputAttributes: {
                     autocapitalize: 'off',

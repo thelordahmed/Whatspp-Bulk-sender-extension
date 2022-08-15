@@ -1,21 +1,28 @@
 {
     "name": "Whatsapp Bulk Sender",
-    "description": "send dynamic messages to your customers automatically on Whatsaap",
-    "version": "1.0.0",
+    "description": "send dynamic messages to your customers automatically through WhatsApp web",
+    "version": "1.0.2",
     "manifest_version":3,
     "action": {
-        "default_title": "Whatsapp Bulk Sender"
+        "default_title": "Whatsapp Bulk Sender",
+        "default_icon": {
+            "16": "images/logo 16.png",
+            "32": "images/logo 32.png",
+            "48": "images/logo 48.png",
+            "128": "images/logo 128.png"
+        }
     },
     "background": {
         "service_worker": "background.js"
     },
     "content_scripts": [{
         "matches" : ["https://web.whatsapp.com/"],
-        "js": ["whatsapp.js","main.js"]
+        "js": ["country_codes.js","whatsapp.js","main.js"]
     }],
-    "permissions": ["tabs", "storage"],
+    "permissions": ["tabs", "storage", "scripting"],
     "host_permissions" : [
-        "https://softwarekeys.herokuapp.com/*"
+        "https://softwarekeys.herokuapp.com/*",
+        "https://*.whatsapp.com/*"
     ],
     "web_accessible_resources": [
         {

@@ -16,9 +16,12 @@
     userid: ""
     key: ""
     isKeyActivated: {status: boolean, expire: "Date"}
+    currentContact: {name: "", phone: ""}
 */
+let wa_interval;
 const SENT_STATE = "Message Sent!"
 const NOTFOUND_STATE = "No WhatsApp"
+const NOCODE_STATE = "No Country Code"
 const IDLE_STATE = "---"
 const APP_NAME = "chrome extension"
 const excelInput = document.getElementById("excel-sheet")
@@ -47,12 +50,19 @@ const minDelay = document.getElementById("minDelay")
 const maxDelay = document.getElementById("maxDelay")
 
 
+
 // onstart updating UI with storage data
 window.addEventListener("load", async () => {
     updateUI()
+    // INITIALIZE "isKeyActivated" VALUE TO FALSE ; TO KEEP CHECKING THE API ON EVERY APP START
+    chrome.storage.local.set({ "isKeyActivated": { status: false, expire: null } })
     // SHOW LOADING IF NO ACTIVE KEY AND NO FREE MESSAGES
     let isKeyActivated = await fetchStorage("isKeyActivated")
     if (!isKeyActivated.status) {
+        let state = await fetchStorage("state")
+        if (state == "working") {
+            return;
+        }
         Swal.fire({
             allowEscapeKey: false,
             allowOutsideClick: false,
@@ -73,6 +83,9 @@ window.addEventListener("load", async () => {
         }
     }
 })
+
+
+
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 // MESSAGE LISTENERS 
@@ -112,6 +125,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         sendingBtn.classList.remove("btn-danger")
         sendingBtn.classList.add("btn-success")
         sendingBtn.innerText = "Start sending"
+        // STOP URL INTERVAL
+        clearInterval(wa_interval)
     }
 })
 // Started App Loop 
@@ -124,6 +139,43 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         sendingBtn.classList.add("btn-danger")
         sendingBtn.innerText = "Stop sending"
         reportTab.click()
+        // Interval Check If Whatsapp Page URL Changed
+        chrome.tabs.query({ url: 'https://*.whatsapp.com/*' }).then(wa_tab => {
+            // Back Func
+            function go_back() {
+                history.back()
+            }
+            wa_interval = setInterval(async () => {
+                let tmp = await chrome.tabs.query({ url: 'https://*.whatsapp.com/*' })
+                if (wa_tab[0].url !== tmp[0].url) {
+                    // GOING BACK TO WHATSAPP PAGE
+                    await chrome.scripting.executeScript({
+                        target: { tabId: tmp[0].id },
+                        func: go_back
+                    })
+                    // SYNC CURRENT CONTACT WITH SHEET DATA
+                    let currentContact = await fetchStorage("currentContact")
+                    let sheetData = await fetchStorage("sheetData")
+                    let columnA_checked = await fetchStorage("column")
+                    for (let i=0; i < sheetData.length; i++){
+                        let rowObj = sheetData[i]
+                        let phone = columnA_checked === "a" ? rowObj.row[0] : rowObj.row[1]
+                        if (phone === currentContact.phone) {
+                            // UPDATE STATE TO NOT FOUND AND SAVE TO STORAGE
+                            sheetData[i].state = NOTFOUND_STATE
+                            await chrome.storage.local.set({ "sheetData": sheetData })
+                        }
+                    }
+                    // ADD TO REPORT TABLE
+                    addToReportTable(currentContact.name, currentContact.phone, NOTFOUND_STATE)
+                    // WAIT FOR PAGE TO LOAD
+                    await delay(5000)
+                    // START SENDING REQUEST
+                    chrome.tabs.sendMessage(tmp[0].id, { message: "start sending" })
+                    clearInterval(wa_interval)
+                }
+            }, 2000)
+        })
     }
 })
 
@@ -318,15 +370,23 @@ excelInput.addEventListener("change", async () => {
         tbody.removeChild(tbody.lastChild)
     }
     // processing sheet data
-    readXlsxFile(excelInput.files[0]).then((rowsList) => {
+    readXlsxFile(excelInput.files[0]).then(async (rowsList) => {
         let sheetData = []
-        rowsList.forEach(row => {
+        ////// TODO ////////
+        let numbersCol = await fetchStorage("column")
+        for (let i=0; i < rowsList.length; i++) {
+            let phone = numbersCol === "b" ? rowsList[i][1] : rowsList[i][0]
+            // SKIP EMPTY ROWS
+            if (!phone) {
+                continue
+            }
+            // CREATING SHEET DATA LIST
             let rowObj = {
-                row: row,
+                row: rowsList[i],
                 state: IDLE_STATE
             }
             sheetData.push(rowObj)
-        });
+        }
         // rowsList: list of Objects [{row: ["name", "201123123"], "state": "---"}, ...]
         chrome.storage.local.set({ "sheetData": sheetData })
         // clear the input to avoid data not changing when choosing same sheet
@@ -410,6 +470,7 @@ sendingBtn.addEventListener("click", async () => {
             chrome.windows.update(res.windowID, { focused: true })
         })
     }
+    // START SENDING REQUEST
     chrome.tabs.sendMessage(webTab[0].id, { message: "start sending" }).catch((error) => {
         Swal.fire({
             title: "WhatsApp Web Not Found!",
@@ -535,6 +596,16 @@ async function getSavedUIData() {
 
 // Update UI Inputs with Saved Data
 async function updateUI() {
+    // CHECK IF APP IS WORKING
+    let state = await fetchStorage("state")
+    if (state === "working") {
+        // CHANGE BUTTON TO STOP SENDING STATE
+        sendingBtn.disabled = false;
+        sendingBtn.classList.remove("btn-success")
+        sendingBtn.classList.add("btn-danger")
+        sendingBtn.innerText = "Stop sending"
+        reportTab.click()
+    }
     let dataObj = await getSavedUIData();
     // SET EXCEL FILE NAME - DEFAULTING IF NO SAVED DATA
     excelFileName.innerText = dataObj.sheetFileName ? dataObj.sheetFileName : null
@@ -593,8 +664,8 @@ async function updateUI() {
         for (let i = 0; i < dataObj.sheetData.length; i++) {
             if (dataObj.sheetData[i].state !== IDLE_STATE) {
                 let numbersCol = await fetchStorage("column")
-                let name = numbersCol === "a" ? dataObj.sheetData[i].row[0] : dataObj.sheetData[i].row[1]
-                let phone = numbersCol === "a" ? dataObj.sheetData[i].row[1] : dataObj.sheetData[i].row[0]
+                let name = numbersCol === "b" ? dataObj.sheetData[i].row[0] : dataObj.sheetData[i].row[1]
+                let phone = numbersCol === "b" ? dataObj.sheetData[i].row[1] : dataObj.sheetData[i].row[0]
                 addToReportTable(name, phone, dataObj.sheetData[i].state)
             }
         }
@@ -608,6 +679,8 @@ function addToReportTable(name, phone, status) {
         tr.classList.add("table-success")
     } else if (status === NOTFOUND_STATE) {
         tr.classList.add("table-danger")
+    } else if (status === NOCODE_STATE) {
+        tr.classList.add("table-warning")
     }
     let name_td = document.createElement("td")
     name_td.innerText = name

@@ -22,6 +22,7 @@ let wa_interval;
 const SENT_STATE = "Message Sent!"
 const NOTFOUND_STATE = "No WhatsApp"
 const NOCODE_STATE = "No Country Code"
+const BLOCKED_STATE = "Blocked Contact"
 const IDLE_STATE = "---"
 const APP_NAME = "chrome extension"
 const excelInput = document.getElementById("excel-sheet")
@@ -681,6 +682,8 @@ function addToReportTable(name, phone, status) {
         tr.classList.add("table-danger")
     } else if (status === NOCODE_STATE) {
         tr.classList.add("table-warning")
+    } else if (status === BLOCKED_STATE) {
+        tr.classList.add("table-danger")
     }
     let name_td = document.createElement("td")
     name_td.innerText = name

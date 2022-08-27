@@ -2,7 +2,7 @@
 const SENT_STATE = "Message Sent!"
 const NOTFOUND_STATE = "No WhatsApp"
 const NOCODE_STATE = "No Country Code"
-const BLOCKED_STATE = "No Country Code"
+const BLOCKED_STATE = "Blocked Contact"
 const IDLE_STATE = "---"
 const MSG_SENT_EVENT = "messageSent"
 let is_sent = false

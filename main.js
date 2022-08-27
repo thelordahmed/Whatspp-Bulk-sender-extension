@@ -5,7 +5,7 @@ const NOCODE_STATE = "No Country Code"
 const BLOCKED_STATE = "No Country Code"
 const IDLE_STATE = "---"
 const MSG_SENT_EVENT = "messageSent"
-const IS_SENT = false
+let is_sent = false
 let debug_mode = false
 
 const wa = new Whatsapp()
@@ -161,8 +161,8 @@ async function startSending() {
             if (sendingOrder === "textFirst") {
                 // SEND TEXT
                 if (!debug_mode) {
-                   IS_SENT = await wa.sendText(message)
-                    if (IS_SENT) {
+                   is_sent = await wa.sendText(message)
+                    if (is_sent) {
                         // SEND MEDIA
                         if (mediaInput.files.length > 0) {
                             await wa.sendImage(mediaInput)
@@ -173,24 +173,24 @@ async function startSending() {
                 if (!debug_mode) {
                     // SEND MEDIA
                     if (mediaInput.files.length > 0) {
-                        IS_SENT = await wa.sendImage(mediaInput)
+                        is_sent = await wa.sendImage(mediaInput)
                     }
                     // SEND TEXT
                     await delay(randint(1500, 3000)) // wait for image view to disappear
-                    IS_SENT = await wa.sendText(message)
+                    is_sent = await wa.sendText(message)
                 }
             } else {
                 if (!debug_mode) {
                     // SEND MEDIA WITH CAPTION
                     if (mediaInput.files.length > 0) {
-                        IS_SENT = await wa.sendImage(mediaInput, true, message)
+                        is_sent = await wa.sendImage(mediaInput, true, message)
                     } else {
-                        IS_SENT = await wa.sendText(message)
+                        is_sent = await wa.sendText(message)
                     }
                 }
             }
             // UPDATE STATE
-            if (IS_SENT) {
+            if (is_sent) {
                 sheetData[i].state = SENT_STATE
                 sent += 1
                 // LICENSE KEY CHECK

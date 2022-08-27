@@ -2,8 +2,10 @@
 const SENT_STATE = "Message Sent!"
 const NOTFOUND_STATE = "No WhatsApp"
 const NOCODE_STATE = "No Country Code"
+const BLOCKED_STATE = "No Country Code"
 const IDLE_STATE = "---"
 const MSG_SENT_EVENT = "messageSent"
+const IS_SENT = false
 let debug_mode = false
 
 const wa = new Whatsapp()
@@ -159,46 +161,52 @@ async function startSending() {
             if (sendingOrder === "textFirst") {
                 // SEND TEXT
                 if (!debug_mode) {
-                    await wa.sendText(message)
-                    // SEND MEDIA
-                    if (mediaInput.files.length > 0) {
-                        await wa.sendImage(mediaInput)
+                   IS_SENT = await wa.sendText(message)
+                    if (IS_SENT) {
+                        // SEND MEDIA
+                        if (mediaInput.files.length > 0) {
+                            await wa.sendImage(mediaInput)
+                        }
                     }
                 }
             } else if (sendingOrder === "attachmentFirst") {
                 if (!debug_mode) {
                     // SEND MEDIA
                     if (mediaInput.files.length > 0) {
-                        await wa.sendImage(mediaInput)
+                        IS_SENT = await wa.sendImage(mediaInput)
                     }
                     // SEND TEXT
                     await delay(randint(1500, 3000)) // wait for image view to disappear
-                    await wa.sendText(message)
+                    IS_SENT = await wa.sendText(message)
                 }
             } else {
                 if (!debug_mode) {
                     // SEND MEDIA WITH CAPTION
                     if (mediaInput.files.length > 0) {
-                        await wa.sendImage(mediaInput, true, message)
+                        IS_SENT = await wa.sendImage(mediaInput, true, message)
                     } else {
-                        wa.sendText(message)
+                        IS_SENT = await wa.sendText(message)
                     }
                 }
             }
             // UPDATE STATE
-            sheetData[i].state = SENT_STATE
-            sent += 1
-            // LICENSE KEY CHECK
-            let isKeyActivated = await fetchStorage("isKeyActivated")
-            if (!isKeyActivated.status) {
-                // DECREASE FREE MESSAGES ON THE SERVER
-                chrome.runtime.sendMessage({ message: "decrease free messages" })
-                // CHECK IF OUT OF FREE MESSAGES
-                let freeMessages = await fetchStorage("freeMessages")
-                if (freeMessages.remaining <= 0) {
-                    chrome.runtime.sendMessage({ message: "out of free messages" })
-                    break
+            if (IS_SENT) {
+                sheetData[i].state = SENT_STATE
+                sent += 1
+                // LICENSE KEY CHECK
+                let isKeyActivated = await fetchStorage("isKeyActivated")
+                if (!isKeyActivated.status) {
+                    // DECREASE FREE MESSAGES ON THE SERVER
+                    chrome.runtime.sendMessage({ message: "decrease free messages" })
+                    // CHECK IF OUT OF FREE MESSAGES
+                    let freeMessages = await fetchStorage("freeMessages")
+                    if (freeMessages.remaining <= 0) {
+                        chrome.runtime.sendMessage({ message: "out of free messages" })
+                        break
+                    }
                 }
+            } else {
+                sheetData[i].state = BLOCKED_STATE
             }
         } else {
             // UPDATE STATE

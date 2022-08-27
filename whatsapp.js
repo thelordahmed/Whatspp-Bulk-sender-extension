@@ -111,6 +111,12 @@ class Whatsapp {
     // returns false if number is blocking the sender
     sendText(message, asCaption = false) {
         return new Promise((resolve) => {
+            // Blocked Contact Check
+            let blockedcheck = document.querySelector('//div[@data-testid="block-message"]')
+            if (blockedcheck) {
+                resolve(false);
+                return false
+            }
             let messageBox;
             if (asCaption) {
                 messageBox = document.querySelectorAll('[contenteditable="true"]')[0];
@@ -151,6 +157,12 @@ class Whatsapp {
 
     sendImage(extensionInput, withCaption=false, message=null) {
         return new Promise((resolve) => {
+            // Blocked Contact Check
+            let blockedcheck = document.querySelector('//div[@data-testid="block-message"]')
+            if (blockedcheck) {
+                resolve(false);
+                return false
+            }
             let clipBtn = document.querySelector(this.clipButton);
             let whatsappInput = document.querySelector(this.imageInput);
             if (!whatsappInput) {
@@ -163,10 +175,10 @@ class Whatsapp {
                 whatsappInput.dispatchEvent(new Event("change", { bubbles: true }));
                 setTimeout(() => {
                     if (withCaption) {
-                        this.sendText(message, true).then(() => resolve())
+                        this.sendText(message, true).then(() => resolve(true))
                     } else {
                         document.querySelector("[data-icon='send']").click();
-                        resolve();
+                        resolve(true);
                     }
 
                 }, randint(1500, 3000));

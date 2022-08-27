@@ -112,7 +112,7 @@ class Whatsapp {
     sendText(message, asCaption = false) {
         return new Promise((resolve) => {
             // Blocked Contact Check
-            let blockedcheck = document.querySelector('//div[@data-testid="block-message"]')
+            let blockedcheck = document.querySelector('div[data-testid="block-message"]')
             if (blockedcheck) {
                 resolve(false);
                 return false
@@ -158,7 +158,7 @@ class Whatsapp {
     sendImage(extensionInput, withCaption=false, message=null) {
         return new Promise((resolve) => {
             // Blocked Contact Check
-            let blockedcheck = document.querySelector('//div[@data-testid="block-message"]')
+            let blockedcheck = document.querySelector('div[data-testid="block-message"]')
             if (blockedcheck) {
                 resolve(false);
                 return false

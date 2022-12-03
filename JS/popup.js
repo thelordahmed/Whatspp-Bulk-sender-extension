@@ -243,8 +243,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             return;
         }
         if (key) {
-            let endpoint = `https://softwarekeys.herokuapp.com/key/${key}/${userid}/${APP_NAME}`
-            let data = await fetch(endpoint, { method: "PUT" })
+            let endpoint = `https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/key/${key}/${userid}/${APP_NAME}`
+            let data = await fetch(endpoint, { method: "GET" })
             data = await data.json()
             if (data.response === "valid") {
                 // SAVING KEY STATUS
@@ -259,8 +259,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         }
         // API - CHECK FREE MESSAGE
         let senderNumber = await fetchStorage("senderNumber")
-        let endpoint = `https://softwarekeys.herokuapp.com/freemessages/${senderNumber}`
-        let data = await fetch(endpoint, { method: "PUT" })
+        let endpoint = `https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/freemessages/${senderNumber}`
+        let data = await fetch(endpoint, { method: "GET" })
         data = await data.json()
         // SAVING TO STORAGE
         await chrome.storage.local.set({ "freeMessages": { "remaining": data.messages, "max": data.max } })
@@ -283,8 +283,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     sendResponse()
     if (request.message === "decrease free messages") {
         let senderNumber = await fetchStorage("senderNumber")
-        let endpoint = `https://softwarekeys.herokuapp.com/freemessages/decrease/${senderNumber}`
-        let data = await fetch(endpoint, { method: "PUT" })
+        let endpoint = `https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/freemessagesDecrease/${senderNumber}`
+        let data = await fetch(endpoint, { method: "GET" })
         data = await data.json()
         // SAVE TO STORAGE
         await chrome.storage.local.set({ "freeMessages": { "remaining": data.messages, "max": data.max } })

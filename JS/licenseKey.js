@@ -1,4 +1,4 @@
-const APP_NAME = "chrome extension"
+const APP_NAME = "Whatsapp Chrome Extension"
 
 //////////////////////////////////////
 ///// Util 
@@ -14,7 +14,7 @@ async function fetchStorage(key = String) {
 
 async function get_delete_userid_endpoint() {
     let userid = await fetchStorage("userid")
-    let endpoint = `https://softwarekeys.herokuapp.com/key/userid/delete/${userid}`
+    let endpoint = `https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/useridDelete/${userid}`
     return endpoint
 }
 //////////////////////////////////////
@@ -50,7 +50,7 @@ fetchStorage("freeMessages").then((dataObj) => {
                     // SAVE KEY TO STORAGE
                     await chrome.storage.local.set({ "key": key })
                     let userid = await fetchStorage("userid")
-                    return fetch(`https://softwarekeys.herokuapp.com/key/${key}/${userid}/${APP_NAME}`, { method: "PUT" })
+                    return fetch(`https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/key/${key}/${userid}/${APP_NAME}`, { method: "GET" })
                         .then(async (response) => {
                             if (!response.ok) {
                                 throw new Error(response.statusText)

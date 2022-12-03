@@ -21,7 +21,7 @@
     }],
     "permissions": ["tabs", "storage", "scripting"],
     "host_permissions" : [
-        "https://softwarekeys.herokuapp.com/*",
+        "https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/*",
         "https://*.whatsapp.com/*"
     ],
     "web_accessible_resources": [
@@ -30,7 +30,7 @@
                 "popup.js"
             ],
             "matches": [
-                "https://softwarekeys.herokuapp.com/*"
+                "https://script.google.com/macros/s/AKfycbwuJo2PAdmrTHdgGPyGocWTOMqh-rrqinTgbnrMbLpsbnHLPiZs33AuOAf3vFsRoZeucQ/exec/*"
             ]
         }
     ]

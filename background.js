@@ -11,6 +11,8 @@ async function fetchStorage(key = String) {
     let data = await chrome.storage.local.get(key)
     if (data[key]) {
         return data[key]
+    } else {
+        return null
     }
 }
 
@@ -21,16 +23,16 @@ function generateId() {
 ////////////////////////////////////////////////////////////////
 
 
-// GENERATE USER ID IF NOT FOUND
-chrome.runtime.onInstalled.addListener(() => {
-    fetchStorage("userid")
-        .then((userid) => {
-            if (!userid) {
-                let id = generateId()
-                chrome.storage.local.set({ "userid": id })
-            }
-        })
-})
+// INITIALIZE USER ID IF NOT FOUND
+// chrome.runtime.onInstalled.addListener(() => {
+//     fetchStorage("userid")
+//         .then((userid) => {
+//             if (!userid) {
+//                 let id = generateId()
+//                 chrome.storage.local.set({ "userid": id })
+//             }
+//         })
+// }) 
 
 
 // opens pop up interface window or set focus on it if it's already opened

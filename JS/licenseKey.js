@@ -1,8 +1,8 @@
 const APP_NAME = "Whatsapp Chrome Extension"
 
 //////////////////////////////////////
-///// Util 
-
+///////////// * Util * ///////////////
+//////////////////////////////////////
 // Check If Data Exists in Storage and Returns it
 async function fetchStorage(key = String) {
     let data = await chrome.storage.local.get(key)
@@ -33,7 +33,7 @@ fetchStorage("freeMessages").then((dataObj) => {
             Swal.fire({
                 title: 'Enter your License Key',
                 input: 'text',
-                footer: "<a href='https://autotaskbots.com/downloads/whatsapp-bulk-sender' target='_blank'>Buy a license key</a>",
+                footer: "<a href='https://autotaskbots.com/product/whatsapp-bulk-sender' target='_blank'>Buy a license key</a>",
                 showCancelButton: showCancel,
                 inputAttributes: {
                     autocapitalize: 'off',

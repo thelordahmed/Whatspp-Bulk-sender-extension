@@ -230,7 +230,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         // CHECK IF THERE'S SAVED KEY
         let key = await fetchStorage("key")
         let userid = await fetchStorage("userid")
-        let isKeyActivated = await fetchStorage("userid")
+        let isKeyActivated = await fetchStorage("isKeyActivated")
         /* 
         CHECK IF KEY WAS VALIDITED ALREADY IN LICENSEKEY PAGE
         TO AVOID SENDING THE REQUEST TWICE

@@ -91,7 +91,7 @@ class Whatsapp {
                         console.log("waiting for chat...")
                     } else {
                         clearInterval(interval)
-                        let btn = document.querySelector('[data-animate-modal-popup="true"] div[role="button"]');
+                        let btn = document.querySelector('[data-animate-modal-popup="true"] button');
                         if (btn) {
                             delay(1000).then(() => {
                                 btn.click();

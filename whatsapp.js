@@ -24,7 +24,7 @@ function formatPhone(phone) {
 // check for element appearance every {delay} millieseconds
 class Whatsapp {
     constructor() {
-        this.clipButton = '[data-icon="clip"]'
+        this.clipButton = '[data-icon="attach-menu-plus"]'
         this.sendButton = '[data-icon="send"]'
         this.imageInput = 'input[type="file"][accept*="image/*,video"]'
         this.textInput = '[contenteditable="true"]'
